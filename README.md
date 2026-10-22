@@ -1,5 +1,7 @@
 ﻿# 按需语音回复 `tts_on_demand`
 
+> 仓库地址：https://github.com/lumia-li/astrbot_plugin_tts_on_demand
+
 一个 AstrBot 插件：**平时只发文字，只有你明确要求时才回复语音。**
 
 ## 解决什么问题
@@ -22,16 +24,18 @@ AstrBot 判定是否合成语音时会调用 `SessionServiceManager.should_proce
 @filter.on_llm_request()
 async def mark_tts(self, event, *_args, **_kwargs):
     hit, reason = self.match(event.message_str or "")
-    await self.apply(event, hit)
+    await self._apply(event, hit)
 ```
 
 所以是**逐条生效**的，不需要手动开关，也不会污染下一条消息。
 
 ## 安装
 
-### 方式一：插件市场
+### 方式一：插件市场（上架后可用）
 
-AstrBot WebUI → 插件市场 → 搜索「按需语音」→ 安装。
+AstrBot WebUI → 插件市场 → 搜索「按需语音回复」→ 安装。
+
+> 目前还未上架市场，请先用下面的手动方式安装。
 
 ### 方式二：手动
 
@@ -69,7 +73,7 @@ Bot：文字 + 语音                    ← 命中「语音」
 Bot：文字回复                      ← 自动回到纯文字
 ```
 
-自定义触发词后：
+自定义触发词（在 WebUI 插件配置的「触发词列表」里增删，效果等同）：
 
 ```yaml
 trigger_words:
