@@ -19,7 +19,7 @@ from astrbot.api.star import Context, Star, register
 from astrbot.core.star.session_llm_manager import SessionServiceManager
 
 PLUGIN_NAME = "astrbot_plugin_tts_on_demand"
-PLUGIN_VERSION = "0.0.2"
+PLUGIN_VERSION = "0.0.3"
 PLUGIN_DESC = "平时纯文字，命中触发词的那条消息才回复语音；语音可只读首句或前 N 字"
 
 DEFAULT_TRIGGER_WORDS = [
@@ -35,27 +35,45 @@ DEFAULT_TRIGGER_WORDS = [
 MODE_FIRST_SENTENCE = "只读第一句"
 MODE_FIRST_CHARS = "只读前 N 字"
 
-SENTENCE_END = "。！？!?…\n"
-SOFT_BREAKS = "，、,;；"
+DEFAULT_BREAK_CHARS = "。！？!?…"
+SOFT_BREAKS = "，、,;；:：~～—"
 
 
-def first_sentence(text: str) -> str:
+def parse_break_chars(raw: str, add_newline: bool) -> str:
+    """把用户在配置里填的符号串解析成断句字符集合（支持 \\n \\t 转义）。"""
+    text = str(raw or "")
+    text = text.replace("\\r", "\r").replace("\\n", "\n").replace("\\t", "\t")
+    text = "".join(ch for ch in text if ch not in " \u3000")
+    if add_newline and "\n" not in text:
+        text += "\n"
+    return text or DEFAULT_BREAK_CHARS
+
+
+def first_sentence(text: str, break_chars: str) -> str:
     for i, ch in enumerate(text):
-        if ch in SENTENCE_END:
+        if ch in break_chars:
             return text[: i + 1]
     return text
 
 
-def head_chars(text: str, limit: int) -> str:
+def head_chars(text: str, limit: int, break_chars: str, soft_break: bool = True) -> str:
     if limit <= 0 or len(text) <= limit:
         return text
     cut = text[:limit]
-    # 尽量在标点处收尾，避免读半个词
+
+    # 优先在「断句符号」处收尾
     best = -1
-    for p in SENTENCE_END + SOFT_BREAKS:
-        idx = cut.rfind(p)
+    for ch in break_chars:
+        idx = cut.rfind(ch)
         if idx > best:
             best = idx
+    # 找不到再退而求其次，用逗号这类弱断点
+    if best < 0 and soft_break:
+        for ch in SOFT_BREAKS:
+            idx = cut.rfind(ch)
+            if idx > best:
+                best = idx
+
     if best >= max(1, limit // 2):
         return cut[: best + 1]
     return cut
@@ -136,6 +154,14 @@ class TTSOnDemand(Star):
 
     # ------------------------------------------------------------ 语音长度限定
 
+    def _break_chars(self) -> str:
+        raw = self.config.get("speech_break_chars")
+        if raw is None or str(raw).strip() == "":
+            raw = DEFAULT_BREAK_CHARS
+        return parse_break_chars(
+            str(raw), bool(self.config.get("speech_break_newline", True))
+        )
+
     def trim_for_speech(self, text: str) -> str:
         if not bool(self.config.get("speech_limit_enabled", False)):
             return text
@@ -146,16 +172,19 @@ class TTSOnDemand(Star):
         except (TypeError, ValueError):
             limit = 60
 
+        break_chars = self._break_chars()
+        soft_break = bool(self.config.get("speech_break_soft", True))
+
         cleaned = (text or "").strip()
         if not cleaned:
             return text
 
         if mode == MODE_FIRST_CHARS:
-            out = head_chars(cleaned, limit)
+            out = head_chars(cleaned, limit, break_chars, soft_break)
         else:
-            out = first_sentence(cleaned)
+            out = first_sentence(cleaned, break_chars)
             if limit > 0 and len(out) > limit:
-                out = head_chars(out, limit)
+                out = head_chars(out, limit, break_chars, soft_break)
 
         return out or text
 

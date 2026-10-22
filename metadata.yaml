@@ -2,7 +2,7 @@ name: astrbot_plugin_tts_on_demand
 display_name: 按需语音回复
 desc: 平时纯文字，只有消息命中触发词时才回复语音；语音可只读首句或前 N 字，文字仍完整
 author: liyueovo
-version: 0.0.2
+version: 0.0.3
 repo: "https://github.com/lumia-li/astrbot_plugin_tts_on_demand"
 short_desc: 按需语音：命中触发词才发语音
 astrbot_version: ">=4.0.0"
