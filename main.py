@@ -19,7 +19,7 @@ from astrbot.api.star import Context, Star, register
 from astrbot.core.star.session_llm_manager import SessionServiceManager
 
 PLUGIN_NAME = "astrbot_plugin_tts_on_demand"
-PLUGIN_VERSION = "0.0.1"
+PLUGIN_VERSION = "0.0.2"
 PLUGIN_DESC = "平时纯文字，命中触发词的那条消息才回复语音；语音可只读首句或前 N 字"
 
 DEFAULT_TRIGGER_WORDS = [
@@ -67,6 +67,7 @@ class TTSOnDemand(Star):
         super().__init__(context)
         self.config: Mapping[str, Any] = config if config is not None else {}
         self._patched_providers: set[int] = set()
+        self._last_dup_signature: str = ""
 
     # ------------------------------------------------------------ 配置读取
 
@@ -80,7 +81,33 @@ class TTSOnDemand(Star):
         words = self.config.get("trigger_words")
         if not isinstance(words, list) or not words:
             words = DEFAULT_TRIGGER_WORDS
-        return [str(w).strip() for w in words if str(w).strip()]
+
+        case_sensitive = self._case_sensitive()
+        seen: set[str] = set()
+        unique: list[str] = []
+        duplicates: list[str] = []
+
+        for item in words:
+            word = str(item).strip()
+            if not word:
+                continue
+            key = word if case_sensitive else word.lower()
+            if key in seen:
+                duplicates.append(word)
+                continue
+            seen.add(key)
+            unique.append(word)
+
+        if duplicates:
+            signature = "|".join(duplicates)
+            if signature != self._last_dup_signature:
+                self._last_dup_signature = signature
+                logger.warning(
+                    f"[{PLUGIN_NAME}] 触发词存在重复（已自动去重，不影响使用）："
+                    f"{'、'.join(duplicates)}。建议在 WebUI 里删掉多余项。"
+                )
+
+        return unique
 
     def _regex_pattern(self) -> str:
         return str(self.config.get("regex_pattern") or "").strip()
