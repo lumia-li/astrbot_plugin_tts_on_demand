@@ -19,7 +19,7 @@ from astrbot.api.star import Context, Star, register
 from astrbot.core.star.session_llm_manager import SessionServiceManager
 
 PLUGIN_NAME = "astrbot_plugin_tts_on_demand"
-PLUGIN_VERSION = "1.3.0"
+PLUGIN_VERSION = "0.0.1"
 PLUGIN_DESC = "平时纯文字，命中触发词的那条消息才回复语音；语音可只读首句或前 N 字"
 
 DEFAULT_TRIGGER_WORDS = [
