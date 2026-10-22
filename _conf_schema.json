@@ -39,5 +39,33 @@
     "type": "bool",
     "default": true,
     "hint": "方便排查为什么某条消息发了语音、某条没发。"
+  },
+  "speech_limit_enabled": {
+    "description": "语音只读一部分",
+    "type": "bool",
+    "default": false,
+    "hint": "开启后，语音只念开头一段，文字消息仍然是完整内容。"
+  },
+  "speech_limit_mode": {
+    "description": "截断方式",
+    "type": "string",
+    "options": [
+      "只读第一句",
+      "只读前 N 字"
+    ],
+    "default": "只读第一句",
+    "hint": "「只读第一句」按 。！？… 断句；「只读前 N 字」按下面的字数为上限，并尽量在标点处收尾。"
+  },
+  "speech_limit_chars": {
+    "description": "字数上限",
+    "type": "int",
+    "default": 60,
+    "hint": "选择「只读前 N 字」时生效；「只读第一句」也会用它兜底，避免第一句过长。0 表示不限制。"
+  },
+  "speech_limit_log": {
+    "description": "截断时输出日志",
+    "type": "bool",
+    "default": false,
+    "hint": "排查语音为什么只念了一半时开启，会打印原始字数与截断后字数。"
   }
 }
