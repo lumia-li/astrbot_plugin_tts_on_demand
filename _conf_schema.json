@@ -1,0 +1,43 @@
+{
+  "enabled": {
+    "description": "启用按需语音",
+    "type": "bool",
+    "default": true,
+    "hint": "总开关。关闭后所有回复都只发文字，等同于禁用语音。"
+  },
+  "trigger_words": {
+    "description": "触发词列表",
+    "type": "list",
+    "items": {
+      "type": "string"
+    },
+    "default": [
+      "语音",
+      "发语音",
+      "说给我听",
+      "读出来",
+      "念出来",
+      "朗读",
+      "用声音"
+    ],
+    "hint": "消息里出现任意一个词，这一条回复就带语音。留空则使用默认词表。"
+  },
+  "regex_pattern": {
+    "description": "正则匹配（可选）",
+    "type": "string",
+    "default": "",
+    "hint": "在关键词之外额外支持正则，例如：语音|读一下|念给.{0,4}听 。留空不启用。"
+  },
+  "case_sensitive": {
+    "description": "区分大小写",
+    "type": "bool",
+    "default": false,
+    "hint": "仅影响英文触发词与正则。中文不受影响。"
+  },
+  "log_hit": {
+    "description": "命中时输出日志",
+    "type": "bool",
+    "default": true,
+    "hint": "方便排查为什么某条消息发了语音、某条没发。"
+  }
+}

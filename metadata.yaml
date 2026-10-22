@@ -1,0 +1,8 @@
+name: tts_on_demand
+display_name: 按需语音回复
+desc: 平时纯文字，只有消息命中触发词（语音 / 读出来 / 说给我听 …）时，这一条回复才带语音
+author: liyueovo
+version: 1.1.0
+repo: ""
+short_desc: 按需语音：命中触发词才发语音
+astrbot_version: ">=4.0.0"
