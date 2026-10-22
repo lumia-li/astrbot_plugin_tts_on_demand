@@ -1,4 +1,4 @@
-# 按需语音回复 `tts_on_demand`
+﻿# 按需语音回复 `tts_on_demand`
 
 一个 AstrBot 插件：**平时只发文字，只有你明确要求时才回复语音。**
 
@@ -37,7 +37,7 @@ AstrBot WebUI → 插件市场 → 搜索「按需语音」→ 安装。
 
 ```bash
 cd AstrBot/data/plugins
-git clone <本仓库地址> astrbot_plugin_tts_on_demand
+git clone https://github.com/lumia-li/astrbot_plugin_tts_on_demand astrbot_plugin_tts_on_demand
 ```
 
 然后在 WebUI 里重载插件。
